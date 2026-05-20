@@ -1,0 +1,100 @@
+#lang rhombus/static
+import:
+  pict open
+
+export:
+  magic_move
+
+#//
+fun magic_move(all_pre :: Pict, post :: Pict) :~ Pict:
+  rebuildable(
+    ~deps: [all_pre, post],
+    fun (~deps: [all_pre :: Pict, post :: Pict]):
+      let pre:
+        if all_pre.duration == 1
+        | all_pre
+        | all_pre.time_pad(~before: -(all_pre.duration - 1))
+      fun get_common(p :~ Pict, other_p :~ Pict) :~ Map:
+        recur loop(p :~ Pict = p, accum = {}):
+          for values(accum :~ Map = accum) (child: p.children):
+            let (x, y) = Find(child).maybe_in(other_p)
+            if x
+            | accum ++ { child.identity: child }
+            | loop(child, accum)
+      let common_via_pre = get_common(pre, post)
+      let common_via_post = get_common(post, pre)
+      let pre_w = pre.width
+      let post_w = post.width
+      let pre_h = pre.height
+      let post_h = post.height
+      fun interpolate(pre, post, n): ((1 - n) * pre + n * post)
+      fun move(child :~ Pict, dir, other_common :~ Map) :~ Pict:
+        let (fx, fy) = Find.top_left(child).in(pre)
+        let (fx2, fy2) = Find.bottom_right(child).in(pre)
+        let fdx = (fx + fx2 - pre_w)/2
+        let fdy = (fy + fy2 - pre_h)/2
+        let (tx, ty) = Find.top_left(child).in(post)
+        let (tx2, ty2) = Find.bottom_right(child).in(post)
+        let tdx = (tx + tx2 - post_w)/2
+        let tdy = (ty + ty2 - post_h)/2
+        let fsx = (fx2 - fx) / child.width
+        let fsy = (fy2 - fy) / child.height
+        let tsx = (tx2 - tx) / child.width
+        let tsy = (ty2 - ty) / child.height
+        animate(~desc: ["move", child.identity],
+                ~bend: values,
+                fun (n):
+                  let child = child.snapshot(0, n)
+                  let sx = interpolate(fsx, tsx, n)
+                  let sy = interpolate(fsy, tsy, n)
+                  let dx = interpolate(fdx, tdx, n)
+                  let dy = interpolate(fdy, tdy, n)
+                  let child:
+                    if dir > 0
+                    | translate_drawing(child, dx - fdx, dy - fdy, sx / fsx, sy / fsy)
+                    | translate_drawing(child, dx - tdx, dy - tdy, sx / tsx, sy / tsy)
+                  child)
+      let new_pre:
+        pre.rebuild(~pre:
+                      fun (child :~ Pict):
+                        if child.identity in common_via_pre
+                        | move(child, 1, common_via_post)
+                        | child)
+      let new_post:
+        post.snapshot(0).rebuild(~pre:
+                                   fun (child :~ Pict):
+                                     if child.identity in common_via_post
+                                     | move(child, -1, common_via_pre)
+                                     | child)
+      let p:
+        animate(fun (n):
+                  let w = interpolate(pre_w, post_w, n)
+                  let h = interpolate(pre_h, post_h, n)
+                  let p :~ Pict:
+                    if n .< 0.5
+                    | new_pre.snapshot(0, n)
+                    | new_post.snapshot(0, n)
+                  let p:
+                    p.pad(~horiz: (w - p.width) / 2,
+                          ~vert: (h - p.height) / 2)
+                  p)
+      switch(all_pre.time_pad(~after: -1),
+             p,
+             post)
+  )
+
+fun translate_drawing(child :~ Pict, dx, dy, sx, sy):
+  overlay.center(child.ghost(),
+                 child.launder()
+                   .scale(sx, sy)
+                   .translate(dx, dy))
+
+module main:
+  import:
+    slideshow open
+  let c = circle()
+  let r = rectangle()
+  let pre = overlay(c, r)
+  let post = beside(~sep: 50, c.scale(0.5), r)
+  println(explain_anim(rectangle(~around: magic_move(pre, post)), ~steps: 10, ~end: 1))
+  slide(magic_move(pre, post))

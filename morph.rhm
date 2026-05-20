@@ -1,0 +1,91 @@
+#lang rhombus/static
+import:
+  pict open
+
+export:
+  morph
+
+// Interpolation on `from` and `to` picts at fraction `n`
+// (ranges 0 to 1) assuming that `from` and `to` are not
+// changing shape. That is, we don't necessarily require
+// `from` and `to` to be static picts, but they're going
+// to be positioned relative to each other on the assumption
+// of static bounding boxes. Also, if `from` or `to` is
+// replaced, we assume replacement with somethign having the
+// same bounds.
+fun static_interpolate(from :: Pict, to :: Pict, n):
+  let n1 = if n < .5 | n*2 | 1
+  let n2 = if n < .5 | 0 | (n-1/2)*2
+  fun interpolate(a, b): a * (1-n2) + b * n2
+  // Specialize animation if `to` is within `from`:
+  let (from_without_to :: maybe(Pict), to_g):
+    cond
+    | from.find_rebuilt(to):
+        let to_g = to.ghost().launder()
+        let from_without_to = from.replace(to, to_g)
+        values(from_without_to, to_g)
+    | ~else:
+        values(#false, #false)
+  let (adx, ady, aw, ah, aa, ad) = from.paragraph_end_bounds()
+  let (bdx, bdy, bw, bh, ba, bd) = to.paragraph_end_bounds()
+  let b = blank(~width: interpolate(from.width, to.width),
+                ~height: interpolate(from.height, to.height),
+                ~ascent: interpolate(from.ascent, to.ascent),
+                ~descent: interpolate(from.descent, to.descent))
+  let b = b.set_paragraph_end_bounds(interpolate(adx, bdx),
+                                     interpolate(ady, bdy),
+                                     interpolate(aw, bw),
+                                     interpolate(ah, bh),
+                                     interpolate(aa, ba),
+                                     interpolate(ad, bd))
+  cond
+  | from_without_to:
+      let p = overlay(b,
+                      from_without_to!!.alpha(1 - n1))
+      let (sx, sy) = Find.top_left(to_g).in(p)
+      let (ex, ey) = Find.top_left(b).in(p)
+      pin(to,
+          ~on: p,
+          ~at: Find.abs(interpolate(sx, ex),
+                        interpolate(sy, ey)))
+        .refocus(b)
+  | ~else:
+      overlay(b,
+              from.alpha(1 - n1),
+              to.alpha(n2))
+        .refocus(b)
+
+// Animation of interpolation between `from` and `to`
+#//
+fun morph(from :: StaticPict, to :: StaticPict):
+  animate(
+    ~deps: [from, to],
+    fun (n, ~deps: [from :: Pict, to :: Pict]):
+      // Shortcuts for 0 or 1 are just a performance tweak.
+      // They arent neecssary if the rest is implemented right.
+      cond
+      | n .= 0:
+          from
+      | n .= 1:
+          to
+      | ~else:
+          // When we get here at first, then `from` and `to`
+          // are certainly static picts. But a snapshot
+          // is taken, and if we allow replacements in the
+          // snapshot, then `from` or `to`  might be replaced
+          // with an animated pict. Use `animate_map`
+          // to insert suitable lowering so we only have to
+          // think about static `from` and `to`
+          animate_map(
+            ~deps: [from, to],
+            fun (_, _, ~deps: [from, to]):
+              static_interpolate(from, to, n)
+          )
+  )
+
+
+fun morph(from :: StaticPict, to :: StaticPict):
+  let b = overlay(from, to).ghost().launder()
+  switch(~join: #'splice,
+         cross_fade(overlay(from, b), overlay(to, b)),
+         overlay(to, cross_fade(b, to.ghost().launder())))

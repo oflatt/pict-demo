@@ -1,0 +1,70 @@
+#lang rhombus
+import:
+  "common.rkt":
+    rename:
+      #{~cite} as _cite
+  rhombus/scribble
+  rhombus/scribble/manual:
+    expose:
+      rhombus
+      math
+      PreContent
+  lib("scriblib/figure.rkt")
+        
+export:
+  all_from(.common):
+    except:
+      common.footnote
+  defterm
+  rhombus
+  rename:
+    boxlitchar as litchar
+  math
+  footnote
+  code_scale
+  codescaled
+  figure.figure
+  figure_maybe_flow_around
+  figure_ref
+  Figure_ref
+  will_flow_around_figure
+  page_break
+
+fun defterm(content, ...):
+  scribble.italic([content, ...])
+
+def code_scale = 1.0 // 0.8
+
+fun codescaled(content, ...):
+  scribble.nested(#//
+                  ~style: "smaller",
+                  content,
+                  ...)
+
+fun footnote(c :: PreContent.to_s_exp):
+  common.footnote(c)
+
+fun figure_ref(c :: PreContent.to_s_exp):
+  figure.#{figure-ref}(c)
+
+fun Figure_ref(c :: PreContent.to_s_exp):
+  figure.#{Figure-ref}(c)
+
+// When this is set to `#true`, use a hack that is
+// compiled in "style.tex"
+def will_flow_around_figure = #false
+
+fun figure_maybe_flow_around(lbl, caption, content):
+  if will_flow_around_figure
+  | figure.#{figure-here}(
+      ~style: figure.#{right-figure-style},
+      lbl,
+      caption,
+      content)
+  | figure.figure(lbl, caption, content)
+
+fun page_break():
+  @scribble.elem(~style: "newpage"){}
+
+fun boxlitchar(s):
+  manual.elem(~style: "boxlitchar", manual.tt(s))
