@@ -1,6 +1,6 @@
 #lang rhombus/static/and_meta
 import:
-  "../config.rhm"
+  "config.rhm"
   pict open
   pict/radial.arrow
   pict/rhombus open

@@ -4,6 +4,11 @@ import:
   pict/rhombus open
   rhombus/scribble/manual
   "common.rhm"
+  "small_steps.rhm" open
+  "wiggle.rhm" open
+  "morph.rhm" open
+  "eval_tree.rhm" open
+  "big_steps.rhm" open
   slideshow open
 
 export:
@@ -78,4 +83,33 @@ define_also_source_pict rotated_fish_pict:
       .rotate(-θ)
 
 
-slide(dragon_pict(11).scale(1/10))
+slide(~title: "Dragon Curve", dragon_pict(11).scale(1/10))
+
+
+
+
+def (fish_code :: Pict, fish_val :: Pict, fish_sched):
+  eval_tree:
+    overlay(ellipse(~width: 50,
+                    ~height: 25,
+                    ~fill: "lightblue"),
+            ~dx: 30, ~dy: 0,
+            triangle(~size: 25,
+                     ~fill: "lightblue")
+              .rotate(1/2 * math.pi))
+
+def fish_steps = sched_to_redex_list(fish_sched)
+
+
+slide(~title: "Making Fish",
+      small_steps(fish_code,
+                  fish_steps),
+      slide.next,
+      blank(),
+      @para{Now you know how to draw fish functionally!})
+
+slide(
+  big_steps(fish_code,
+            fish_sched,
+            ~as_tail: #true)
+)
