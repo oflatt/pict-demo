@@ -9,7 +9,7 @@ We've set up a gui for this image with xorg and xfce4, which opens on launch.
 Use the user name "artifact" and password "password" to login.
 
 
-This artifact contains a folder called `pict-demo` containing a `demo.rhm` Rhombus program and some helper files, including `big_steps.rhm`, `small_steps.rhm`, and `magic_move.rhm`. 
+The artifact is located at `~/pict-demo`. The `pict-demo` folder contains a `demo.rhm` Rhombus program and some helper files, including `big_steps.rhm`, `small_steps.rhm`, and `magic_move.rhm`. 
 
 To run the demo, open a terminal and run `rhombus ~/pict-demo/demo.rhm`.
 A slideshow should appear containing the dragon curve example, small step evaluation of a fish, and big step evaluation of a fish.
