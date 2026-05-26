@@ -1,6 +1,16 @@
 #lang rhombus/static
+
+// Big-step animation: for each subexpression evaluated by a
+// big-step schedule, push the subexpression out to the side,
+// run its own animation, then pop the resulting value back into
+// place. Driven by an `Eval` tree produced by `eval_tree`.
+
 import:
-  pict open
+  // exclude pict's `magic_move` so it doesn't collide with the
+  // hand-written one in "magic_move.rhm"
+  pict:
+    open
+    except: magic_move
   "morph.rhm" open
   "magic_move.rhm" open
   "max_bounds.rhm" open
@@ -9,67 +19,20 @@ import:
 export:
   big_steps
 
-// The pict `p` has a subexpression grayed out as `gray_sub`,
-// while `eval_sub` is the evaluation animation for that subexpression
-fun x_slide_out_and_back(p :: Pict, gray_sub :: Pict, eval_sub :: Pict) :~ Pict:
-  let start_sub = eval_sub.snapshot()
-  let end_val = eval_sub.snapshot(eval_sub.duration-1, 1)
-  // Start with the initial subexpression on top of its grayed version
-  let in_pre = pin(~on: p,
-                   ~at: Find(gray_sub),
-                   ~pinhole: Find(start_sub),
-                   start_sub)
-  // Target pict has the subexpression out to the right, with
-  // the context scaled down by 50%
-  let out = beside(~sep: 50,
-                   p.scale(0.5),
-                   overlay(start_sub,
-                           // Use enough room to fit the largst
-                           // evaluation step:
-                           max_bounds(start_sub).blank()))
-  // Placeholder for the subexpression value to move into place:
-  let end_blank = end_val.blank()
-  // After subexpression evaluation is done, morph context
-  // around `end_val` shape, and final value is meanwhile
-  // still out to the left
-  let out_done:
-    out
-      .replace(gray_sub, morph(gray_sub, end_blank))
-      .replace(start_sub, end_val)
-  // Final value in place of the subexpression
-  let in_post:
-    // substitute `end_blank` and then pin on it,
-    // instead of substituting `end_val` directly,
-    // so that `end_val` can move independently from
-    // the pict containing `gray_from`
-    pin(~on: p.replace(gray_sub, end_blank),
-        ~at: Find.top_left(end_blank),
-        end_val)
-  // Animate the sequence
-  switch(
-    ~join: #'splice,
-    // move ubexpression out:
-    magic_move(in_pre, out),
-    // subexpression's evaluation sequence:
-    out.replace(start_sub, eval_sub),
-    // move result back in:
-    magic_move(out_done, in_post)
-  )
-
-// version 2:
-fun slide_out_and_back(p :: Pict, gray_sub :: Pict, eval_sub :: Pict) :~ Pict:
-  big_step_subexpr(p, gray_sub, eval_sub)
-
-fun big_step_subexpr(
+// Animates one big step: starts with `gray_sub` shown in place
+// inside `all`, slides it out to the right (with `all` shrunk),
+// runs `eval_sub` for the subexpression's own evaluation, then
+// slides the resulting value back into the hole.
+fun slide_out_and_back(
   all :: Pict,        // enclosing expression
-  gray_sub :: Pict, // gray subexpression that's already in place:      
-  eval_sub :: Pict  // evaluation animation for subexpression:
+  gray_sub :: Pict,   // grayed subexpression already in place
+  eval_sub :: Pict    // evaluation animation for that subexpression
 ) :: Pict:
   // start and end of subexpression evaluation:
   let start_sub = eval_sub.snapshot()
   let end_val = eval_sub.snapshot(eval_sub.duration-1, 1)
-  // a placeholder for where `env_val` should land, needed
-  // so that `end_val` identity is distinct in key frames
+  // a placeholder for where `end_val` should land, needed
+  // so that `end_val`'s identity is distinct in key frames
   let end_blank = end_val.blank()
   // "before" key frame
   let in_pre = pin(~on: all,
@@ -98,6 +61,8 @@ fun big_step_subexpr(
     ~join: #'splice
   )
 
+// Walks the `Eval` tree, recursively animating sub-evaluations
+// and then the surrounding reduction step.
 fun big_steps(prev_p :: Pict, Eval(subs, step, tail), ~as_tail = #false) :: Pict:
   match step
   | #false:

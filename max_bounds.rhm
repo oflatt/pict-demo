@@ -1,11 +1,16 @@
 #lang rhombus/static
+
+// Returns a ghost pict whose bounding box is the union of `p`'s
+// bounding boxes across every epoch of its animation. Useful for
+// reserving space so an animation that grows/shrinks doesn't shift
+// surrounding layout.
+
 import:
   pict open
 
 export:
   max_bounds
 
-// A pict with a bound box as large as any epoch's
 fun max_bounds(p :: Pict) :~ Pict:
   rebuildable(
     ~deps: [p],

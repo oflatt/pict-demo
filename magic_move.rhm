@@ -1,11 +1,23 @@
 #lang rhombus/static
+
+// `magic_move` animates from `pre` to `post` by detecting children
+// that appear in both and tweening their positions/sizes, while
+// other children cross-fade.
+//
+// The pict library now provides a `magic_move` of its own, but
+// this file uses the from-scratch implementation below so the demo
+// can show how `magic_move` can be built on `animate`, `rebuildable`,
+// `Find`, and per-child snapshots. We exclude pict's `magic_move`
+// from the import to avoid a name collision.
+
 import:
-  pict open
+  pict:
+    open
+    except: magic_move
 
 export:
   magic_move
 
-#//
 fun magic_move(all_pre :: Pict, post :: Pict) :~ Pict:
   rebuildable(
     ~deps: [all_pre, post],
@@ -83,18 +95,10 @@ fun magic_move(all_pre :: Pict, post :: Pict) :~ Pict:
              post)
   )
 
+// Helper used by `magic_move` to translate and scale a child's
+// drawing while keeping its bounds (via the ghost) unchanged.
 fun translate_drawing(child :~ Pict, dx, dy, sx, sy):
   overlay.center(child.ghost(),
                  child.launder()
                    .scale(sx, sy)
                    .translate(dx, dy))
-
-module main:
-  import:
-    slideshow open
-  let c = circle()
-  let r = rectangle()
-  let pre = overlay(c, r)
-  let post = beside(~sep: 50, c.scale(0.5), r)
-  println(explain_anim(rectangle(~around: magic_move(pre, post)), ~steps: 10, ~end: 1))
-  slide(magic_move(pre, post))

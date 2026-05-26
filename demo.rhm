@@ -1,29 +1,21 @@
-#lang rhombus/and_meta
+#lang rhombus
+
+// Slideshow demo for the ICFP 2026 artifact. Run with
+//   rhombus demo.rhm
+// It opens three slides:
+//   1. A dragon-curve drawn from fish picts.
+//   2. A small-step evaluation of the fish expression.
+//   3. A big-step evaluation of the same fish expression.
+
 import:
   pict open
   pict/rhombus open
-  rhombus/scribble/manual
-  "common.rhm"
   "small_steps.rhm" open
   "wiggle.rhm" open
   "morph.rhm" open
   "eval_tree.rhm" open
   "big_steps.rhm" open
   slideshow open
-
-export:
-  dragon_pict
-  dragon_pict_pict
-  rotated_fish_pict
-  dragon_code_pict
-  check_interleave_pict
-
-defn.macro 'define_also_source_pict $name: $defn':
-  '
-    $defn
-    def $name = manual.rhombusblock($defn)
-  '
-
 
 def fish:
   overlay(ellipse(~width: 50,
@@ -34,25 +26,23 @@ def fish:
                    ~fill: "lightblue")
             .rotate(1/2 * math.pi))
 
-define_also_source_pict dragon_code_pict:
-  fun sea_dragon(n :: Nat)
-    :: List.of(Int.in(0,1)):
-    match n
-    | 0: []
-    | ~else:
-        def [x, ...] = sea_dragon(n-1)
-        def [y, ...] = [x, ...].reverse()
-        [x, ..., 0, 1-y, ...]
+fun sea_dragon(n :: Nat)
+  :: List.of(Int.in(0,1)):
+  match n
+  | 0: []
+  | ~else:
+      def [x, ...] = sea_dragon(n-1)
+      def [y, ...] = [x, ...].reverse()
+      [x, ..., 0, 1-y, ...]
 
-define_also_source_pict check_interleave_pict:
-  fun check_interleave(n :: Nat)
-    :: Boolean:
-    def [dn, dn1]:
-      [sea_dragon(n), sea_dragon(n+1)]
-    for all:
-      each i in 0..dn.length()
-      dn1[i*2+1] == dn[i]
-        && dn1[i*2] == i mod 2
+fun check_interleave(n :: Nat)
+  :: Boolean:
+  def [dn, dn1]:
+    [sea_dragon(n), sea_dragon(n+1)]
+  for all:
+    each i in 0..dn.length()
+    dn1[i*2+1] == dn[i]
+      && dn1[i*2] == i mod 2
 
 check sea_dragon(1) ~is [0]
 check sea_dragon(2) ~is [0,0,1]
@@ -62,25 +52,23 @@ check check_interleave(3) ~is #true
 check check_interleave(4) ~is #true
 check check_interleave(5) ~is #true
 
-define_also_source_pict dragon_pict_pict:
-  fun dragon_pict(n :: Int) :: Pict:
-    def [curve, _, _, _]:
-      for fold([p, x, y, θ] = [blank(), 0, 0, 0]):
-        each i in sea_dragon(n)
-        def nx = x + math.cos(θ)*fish.width
-        def ny = y + math.sin(θ)*fish.width
-        [overlay(p, ~dx: x, ~dy: y, rotated_fish(θ))
-           .refocus(p),
-         nx, ny,
-         θ - (i*2-1)*math.pi/2]
-    curve.refocus_around_ink()
+fun dragon_pict(n :: Int) :: Pict:
+  def [curve, _, _, _]:
+    for fold([p, x, y, θ] = [blank(), 0, 0, 0]):
+      each i in sea_dragon(n)
+      def nx = x + math.cos(θ)*fish.width
+      def ny = y + math.sin(θ)*fish.width
+      [overlay(p, ~dx: x, ~dy: y, rotated_fish(θ))
+         .refocus(p),
+       nx, ny,
+       θ - (i*2-1)*math.pi/2]
+  curve.refocus_around_ink()
 
-define_also_source_pict rotated_fish_pict:
-  fun rotated_fish(θ :: Real) :: Pict:
-    def nose = blank()
-    beside(nose, fish)
-      .refocus(nose)
-      .rotate(-θ)
+fun rotated_fish(θ :: Real) :: Pict:
+  def nose = blank()
+  beside(nose, fish)
+    .refocus(nose)
+    .rotate(-θ)
 
 
 slide(~title: "Dragon Curve", dragon_pict(11).scale(1/10))

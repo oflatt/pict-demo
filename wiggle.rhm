@@ -1,4 +1,10 @@
 #lang rhombus/static
+
+// `wiggle` returns an animation that gently rocks `p` back and
+// forth by rotating it ±0.1 radian over one period. The original
+// `p` stays as a ghost so the rocking doesn't shift surrounding
+// layout.
+
 import:
   pict open
 
@@ -11,29 +17,3 @@ fun wiggle(p :: Pict) :: Pict:
       let q = p.rotate(1/10 * math.sin(n * 2 * math.pi))
       overlay(p.ghost(), q.launder()).refocus(p),
   )
-
-module main:
-  import:
-    slideshow open
-  // Two ways to view `wiggle` effect by itself:
-  explain_anim(wiggle(text("hello")).sustain(),
-               ~steps: 8,
-               ~end: 1)
-  slide(wiggle(text("hello").scale(10)).sustain())
-
-module code:
-  import:
-    pict/rhombus open
-
-  export:
-    wiggle_code
-
-  def wiggle_code:
-    rhombusblock(
-      fun wiggle(p :: Pict) :: Pict:
-        animate(
-          fun (n :: Real.in(0, 1)):
-            let q = p.rotate(1/10 * math.sin(n * 2 * math.pi))
-            overlay(p.ghost(), q.launder()).refocus(p),
-        )
-    )

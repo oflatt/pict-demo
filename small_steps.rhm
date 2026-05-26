@@ -1,4 +1,10 @@
 #lang rhombus/static
+
+// Small-step animation: given a starting pict and a list of
+// `[from, to]` reduction steps, produces an animation that for
+// each step wiggles the `from` subexpression in place, then
+// morphs it into `to`, splicing the per-step animations together.
+
 import:
   pict open
   "wiggle.rhm" open
@@ -7,6 +13,7 @@ import:
 export:
   small_steps
 
+// Animate one reduction: wiggle `from` in place, then morph to `to`.
 fun wiggle_then_morph(~in: p :: Pict,
                       ~from: from :: Pict,
                       ~to: to :: Pict) :: Pict:
@@ -14,6 +21,7 @@ fun wiggle_then_morph(~in: p :: Pict,
   let m_p = p.replace(from, morph(from, to))
   switch(w_p, m_p).sustain()
 
+// Append one small-step animation onto the end of `prev_p`.
 fun small_step(prev_p :: Pict, from, to) :: Pict:
   let p = prev_p.snapshot(prev_p.duration-1, 1)
   let from = p.find_rebuilt(from) || error("cannot find",
@@ -25,47 +33,7 @@ fun small_step(prev_p :: Pict, from, to) :: Pict:
          // so splice:
          ~join: #'splice)
 
+// Fold `small_step` over a list of `[from, to]` reduction steps.
 fun small_steps(p :: Pict, steps :: List) :: Pict:
-  // Fold over small steps
   for fold (p = p) ([from, to] in steps):
     small_step(p, from, to)
-
-module code:
-  import:
-    pict/rhombus open
-
-  export:
-    use_small_steps_code
-    small_steps_code
-    small_step_code
-    wiggle_then_morph_code
-
-  def use_small_steps_code:
-    @rhombusblock(
-      def fish_eval_steps = small_steps(fish_code, fish_steps)
-    )
-
-  def small_steps_code:
-    @rhombusblock(      
-      fun small_steps(p :: Pict, steps :: List) :: Pict:
-        for fold (p = p):
-          each [from, to] in steps
-          small_step(p, from, to)
-    )
-
-  def small_step_code:
-    @rhombusblock(
-      fun small_step(prev_p :: Pict, from :: Pict, to :: Pict) :: Pict:
-        def p = prev_p.snapshot(prev_p.duration-1, 1)
-        def from = p.find_rebuilt(from)
-        def new_p = wiggle_then_morph(p, from, to)
-        switch(prev_p, new_p, ~join: SequentialJoin.splice)
-    )
-
-  def wiggle_then_morph_code:
-    @rhombusblock(
-      fun wiggle_then_morph(p :: Pict, from :: Pict, to :: Pict) :: Pict:
-        def w_p = p.replace(from, wiggle(from))
-        def m_p = p.replace(from, morph(from, to))
-        switch(w_p, m_p).sustain()
-    )
