@@ -105,7 +105,7 @@ slide(~title: "Animated Picts",
 //
 // `hilite` overlays a yellow rectangle behind `p`. Declaring `p`
 // as a dependency via `rebuildable` lets the rectangle adapt when
-// `p` is later replaced (see slide 5).
+// `p` is later replaced (see slide 6).
 
 fun hilite(p :: Pict) :: Pict:
   rebuildable(
@@ -130,7 +130,7 @@ slide(~title: "wiggle: An Animated Combinator",
 
 
 // ----------------------------------------------------------------
-// Slide 5a: cir_sq_tri — replace preserves the bounding box
+// Slide 5: cir_sq_tri — replace preserves the bounding box
 //
 // Three shapes side by side, with the middle one swapped for its
 // highlighted version. Because `hilite` preserves the child's bounding box, the circle
@@ -148,7 +148,7 @@ slide(~title: "replace Preserves Layout",
 
 
 // ----------------------------------------------------------------
-// Slide 5b: hilite + replace — adaptive bounds
+// Slide 6: hilite + replace — adaptive bounds
 //
 // New primitives like `hilite` play nicely with 
 // transformations like `Pict.replace`, 
@@ -164,7 +164,7 @@ slide(~title: "hilite adapts to replace",
 
 
 // ----------------------------------------------------------------
-// Slide 6: magic_move
+// Slide 7: magic_move
 //
 // `magic_move` is expressible by the user
 // as a program transformation on picts: it walks
@@ -205,7 +205,7 @@ slide(~title: "magic_move",
 
 
 // ----------------------------------------------------------------
-// Slide 7: magic_move + hilite
+// Slide 8: magic_move + hilite
 //
 // `magic_move` and `hilite` compose: we can hilite
 // the entire school of fish
@@ -217,7 +217,7 @@ slide(~title: "magic_move + hilite",
 
 
 // ----------------------------------------------------------------
-// Slides 8-9: small-step and big-step evaluation animations
+// Slides 9-10: small-step and big-step evaluation animations
 //
 // `eval_tree` records an evaluation schedule for the body; that
 // schedule drives `small_steps` (one step at a time) and

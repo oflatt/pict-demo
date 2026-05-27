@@ -43,10 +43,10 @@ The slides are grouped below to walk you through claims from the paper.
 
 **Users can define new combinators (the shallow side).**
 
-1. **hilite: A New Combinator** — The text "hilite me!" transitions from plain
+3. **hilite: A New Combinator** — The text "hilite me!" transitions from plain
    to sitting on a yellow highlight. `hilite` is a new combinator defined in
    `demo.rhm`, not a pict built-in.
-2. **wiggle: An Animated Combinator** — The word "wiggling" rocks back and
+4. **wiggle: An Animated Combinator** — The word "wiggling" rocks back and
    forth. A second user-defined combinator, this one animated (defined in
    `wiggle.rhm`).
 
@@ -69,7 +69,7 @@ The slides are grouped below to walk you through claims from the paper.
 
 **Combinators and transformation compose.**
 
-1. **magic_move + hilite** — The same rearrangement, now with the school
+8. **magic_move + hilite** — The same rearrangement, now with the school
    highlighted; the highlight animates together with the fish. The shallow-side
    combinator (`hilite`) and the deep-side transformation (`magic_move`) work
    together with no special integration code.
