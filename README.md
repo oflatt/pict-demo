@@ -37,7 +37,7 @@ The slides are grouped below to walk you through claims from the paper.
 1. **Dragon Curve** — A static fractal, tiled out of little fish, drawn from
    existing pict primitives with no animation. (The `check` forms at the top of
    `demo.rhm` also validate the dragon-curve recursion; a clean
-   `raco make demo.rhm` confirms they pass.)
+   `raco test demo.rhm` confirms they pass.)
 2. **Animated Picts** — A light-blue circle grows from small to large and then
    holds, built with the `animate` primitive.
 
@@ -64,12 +64,11 @@ The slides are grouped below to walk you through claims from the paper.
 
 7. **magic_move** — Two schools of fish rearrange into a row of leaders
    followed by their followers; the shared fish slide smoothly to their new
-   positions. `magic_move` is a new program transformation, defined from
-   scratch in `magic_move.rhm`.
+   positions. `magic_move` is a new program transformation, designed as a client of the DSL in `magic_move.rhm`.
 
 **Combinators and transformation compose.**
 
-8. **magic_move + hilite** — The same rearrangement, now with the school
+1. **magic_move + hilite** — The same rearrangement, now with the school
    highlighted; the highlight animates together with the fish. The shallow-side
    combinator (`hilite`) and the deep-side transformation (`magic_move`) work
    together with no special integration code.
@@ -87,7 +86,9 @@ The slides are grouped below to walk you through claims from the paper.
 Together, the new pict combinators (`hilite` and `wiggle`) and the new pict transformation (`magic_move`) show off the benefits of pict's hybrid embedding.
 The pict library enables new combinators and new transformations to work together.
 Under the hood, pict stores an AST annotated with user-provided functions. 
-The full source code of pict is included at TODO, with documentation at TODO.
+Documentation for pict is available by using `raco docs` and searching for `pict` in the top-left corner. 
+The main documentation page is called `Pict: Functional Pictures`.
+The full source code of pict is included at TODO.
 We invite the reviewer to view the `TODO` file in particular, which defines the Pict class.
 
 
