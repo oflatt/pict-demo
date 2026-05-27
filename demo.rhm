@@ -111,8 +111,7 @@ fun hilite(p :: Pict) :: Pict:
   rebuildable(
     ~deps: [p],
     fun (~deps: [p :: Pict]):
-      overlay(rectangle(~width: p.width, ~height: p.height, ~fill: "yellow"),
-              p)
+      rectangle(~around: p.pad(3), ~fill: "yellow", ~refocus: p)
   )
 
 def hilite_label = text("hilite me!").scale(3)
@@ -131,12 +130,12 @@ slide(~title: "wiggle: An Animated Combinator",
 
 
 // ----------------------------------------------------------------
-// Slide 5a: cir_sq_tri — highlight the middle shape via replace
+// Slide 5a: cir_sq_tri — replace preserves the bounding box
 //
-// Three
-// shapes side by side, with the middle one swapped for its
-// highlighted version. Because `hilite` preserves the child's
-// bounding box, the surrounding spacing stays the same.
+// Three shapes side by side, with the middle one swapped for its
+// highlighted version. Because `hilite` preserves the child's bounding box, the circle
+// and triangle on either side don't shift when the square is
+// swapped out.
 
 def cir = circle(~size: 30, ~fill: "lightblue")
 def sq = square(~size: 30, ~fill: "lightgreen")
@@ -144,7 +143,7 @@ def tri = triangle(~size: 30, ~fill: "pink")
 def cir_sq_tri = beside(~sep: 5, cir, sq, tri)
 def cir_hi_sq_tri = cir_sq_tri.replace(sq, hilite(sq))
 
-slide(~title: "Highlight via replace",
+slide(~title: "replace Preserves Layout",
       stack(~sep: 30, cir_sq_tri, cir_hi_sq_tri).scale(3))
 
 
