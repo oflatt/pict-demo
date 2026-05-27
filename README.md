@@ -29,22 +29,66 @@ A slideshow should appear containing each example in sequence.
 Click to continue the slideshow and press escape to exit. 
 
 
-The `demo.rhm` file contains a sequence of examples taken from the paper, showing the different aspects of the pict embedded DSL. 
+The `demo.rhm` file contains a sequence of examples taken from the paper.
+The slides are grouped below to walk you through claims from the paper. 
 
-- `dragon_curve`: First, we give an example pict program using existing pict primitives without animation.
-- `animated_pict`: We give an example animated pict program using the `animate` primitive.
-- `hilite`: We define a new pict combinator which hilites text.
-- `wiggle`: We define a new pict combinator which animates a picture, making it wiggle.
-- `hilite_replaced`: We show that new `hilite` supports pict's replacement helper.
-- `magic_move`: We show the definition of a new pict transformation, creating smooth transitions between slides. We show that it works correctly with `hilite`.
-- `small_steps`: A more complex example generates an animation for small-step execution of pict code.
-- `big_steps` Similarly, we show an example for big-step execution of pict code.
+**Pict expresses pictures and animations.**
 
-Together, the new pict combinators (hilite and wiggle) and the new pict transformation (magic_move) show off the benefits of pict's hybrid embedding.
+1. **Dragon Curve** — A static fractal, tiled out of little fish, drawn from
+   existing pict primitives with no animation. (The `check` forms at the top of
+   `demo.rhm` also validate the dragon-curve recursion; a clean
+   `raco make demo.rhm` confirms they pass.)
+2. **Animated Picts** — A light-blue circle grows from small to large and then
+   holds, built with the `animate` primitive.
+
+**Users can define new combinators (the shallow side).**
+
+1. **hilite: A New Combinator** — The text "hilite me!" transitions from plain
+   to sitting on a yellow highlight. `hilite` is a new combinator defined in
+   `demo.rhm`, not a pict built-in.
+2. **wiggle: An Animated Combinator** — The word "wiggling" rocks back and
+   forth. A second user-defined combinator, this one animated (defined in
+   `wiggle.rhm`).
+
+**Combinators cooperate with deep transformations.**
+
+5. **replace Preserves Layout** — Two rows of circle–square–triangle; in the
+   bottom row the middle square gains a yellow border. The circle and triangle
+   stay put — `replace` swaps the child while `hilite` preserves its bounding
+   box.
+6. **hilite adapts to replace** — A short highlighted string above a longer
+   one. The yellow box resizes to fit the new text, because `hilite` declared
+   its child as a `rebuildable` dependency.
+
+**Users can define new transformations (the deep side).**
+
+7. **magic_move** — Two schools of fish rearrange into a row of leaders
+   followed by their followers; the shared fish slide smoothly to their new
+   positions. `magic_move` is a new program transformation, defined from
+   scratch in `magic_move.rhm`.
+
+**Combinators and transformation compose.**
+
+1. **magic_move + hilite** — The same rearrangement, now with the school
+   highlighted; the highlight animates together with the fish. The shallow-side
+   combinator (`hilite`) and the deep-side transformation (`magic_move`) work
+   together with no special integration code.
+
+**Larger examples from the paper.**
+
+9. **Small-Step Evaluation** — The fish-drawing expression reduces one step at
+   a time: each redex wiggles in place, then morphs into its value. One more
+   click reveals the closing caption.
+10. **Big-Step Evaluation** — The same expression evaluated big-step: each
+    subexpression zooms out to the side, animates, then pops its value back
+    into place. Driven by the same evaluation schedule (`eval_tree.rhm`) as the
+    small-step slide.
+
+Together, the new pict combinators (`hilite` and `wiggle`) and the new pict transformation (`magic_move`) show off the benefits of pict's hybrid embedding.
 The pict library enables new combinators and new transformations to work together.
 Under the hood, pict stores an AST annotated with user-provided functions. 
 The full source code of pict is included at TODO, with documentation at TODO.
-We invite the reviewer to view the `TODO` file in particular, which defines the Pict class. 
+We invite the reviewer to view the `TODO` file in particular, which defines the Pict class.
 
 
 
