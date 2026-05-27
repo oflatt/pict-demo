@@ -23,9 +23,8 @@ import:
 // ----------------------------------------------------------------
 // Slide 1: dragon_curve
 //
-// A static pict built from existing pict primitives, with no
-// animation. Demonstrates the "shallow" picture-combinator side
-// of the library.
+// A static pict built from pict primitives with no
+// animation.
 
 def fish:
   overlay(ellipse(~width: 50,
@@ -134,7 +133,7 @@ slide(~title: "wiggle: An Animated Combinator",
 // ----------------------------------------------------------------
 // Slide 5a: cir_sq_tri — highlight the middle shape via replace
 //
-// The paper's canonical example (§ bounding-box.scrbl): three
+// Three
 // shapes side by side, with the middle one swapped for its
 // highlighted version. Because `hilite` preserves the child's
 // bounding box, the surrounding spacing stays the same.
@@ -152,10 +151,9 @@ slide(~title: "Highlight via replace",
 // ----------------------------------------------------------------
 // Slide 5b: hilite + replace — adaptive bounds
 //
-// Because `hilite` was built with `rebuildable`, `Pict.replace`
-// re-runs `hilite`'s body with the new child, so when the
-// replacement has different bounds the yellow rectangle resizes
-// to match.
+// New primitives like `hilite` play nicely with 
+// transformations like `Pict.replace`, 
+// adapting to the new replacement.
 
 def short_text = text("short").scale(3)
 def long_text = text("a much longer string").scale(3)
@@ -169,7 +167,8 @@ slide(~title: "hilite adapts to replace",
 // ----------------------------------------------------------------
 // Slide 6: magic_move
 //
-// `magic_move` is a *program transformation* on picts: it walks
+// `magic_move` is expressible by the user
+// as a program transformation on picts: it walks
 // the dependency tree to find children shared by `pre` and `post`
 // and tweens their positions and scales. Implementation lives in
 // "magic_move.rhm".
