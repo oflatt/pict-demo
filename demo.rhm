@@ -1,21 +1,31 @@
 #lang rhombus
 
-// Slideshow demo for the ICFP 2026 artifact. Run with
+// Slideshow demo for the ICFP 2026 artifact. Run with:
 //   rhombus demo.rhm
-// It opens three slides:
-//   1. A dragon-curve drawn from fish picts.
-//   2. A small-step evaluation of the fish expression.
-//   3. A big-step evaluation of the same fish expression.
+// Each slide demonstrates one aspect of the pict DSL, supporting
+// the paper's claim that pict is a hybrid of shallow and deep
+// embedding by showing that users can define both new combinators
+// (shallow-style) and new program transformations (deep-style).
 
 import:
-  pict open
   pict/rhombus open
   "small_steps.rhm" open
   "wiggle.rhm" open
   "morph.rhm" open
   "eval_tree.rhm" open
   "big_steps.rhm" open
-  slideshow open
+  "magic_move.rhm" open
+  slideshow:
+    open
+    except: magic_move
+
+
+// ----------------------------------------------------------------
+// Slide 1: dragon_curve
+//
+// A static pict built from existing pict primitives, with no
+// animation. Demonstrates the "shallow" picture-combinator side
+// of the library.
 
 def fish:
   overlay(ellipse(~width: 50,
@@ -26,8 +36,7 @@ def fish:
                    ~fill: "lightblue")
             .rotate(1/2 * math.pi))
 
-fun sea_dragon(n :: Nat)
-  :: List.of(Int.in(0,1)):
+fun sea_dragon(n :: Nat) :: List.of(Int.in(0,1)):
   match n
   | 0: []
   | ~else:
@@ -35,8 +44,9 @@ fun sea_dragon(n :: Nat)
       def [y, ...] = [x, ...].reverse()
       [x, ..., 0, 1-y, ...]
 
-fun check_interleave(n :: Nat)
-  :: Boolean:
+// Sanity check: the (n+1)th dragon sequence interleaves the nth
+// sequence at odd positions, alternating 0/1 at even positions.
+fun check_interleave(n :: Nat) :: Boolean:
   def [dn, dn1]:
     [sea_dragon(n), sea_dragon(n+1)]
   for all:
@@ -52,6 +62,12 @@ check check_interleave(3) ~is #true
 check check_interleave(4) ~is #true
 check check_interleave(5) ~is #true
 
+fun rotated_fish(θ :: Real) :: Pict:
+  def nose = blank()
+  beside(nose, fish)
+    .refocus(nose)
+    .rotate(-θ)
+
 fun dragon_pict(n :: Int) :: Pict:
   def [curve, _, _, _]:
     for fold([p, x, y, θ] = [blank(), 0, 0, 0]):
@@ -64,17 +80,150 @@ fun dragon_pict(n :: Int) :: Pict:
        θ - (i*2-1)*math.pi/2]
   curve.refocus_around_ink()
 
-fun rotated_fish(θ :: Real) :: Pict:
-  def nose = blank()
-  beside(nose, fish)
-    .refocus(nose)
-    .rotate(-θ)
+slide(~title: "Dragon Curve",
+      dragon_pict(11).scale(1/10))
 
 
-slide(~title: "Dragon Curve", dragon_pict(11).scale(1/10))
+// ----------------------------------------------------------------
+// Slide 2: animated pict program
+//
+// A minimal use of pict's `animate` primitive: a circle that
+// grows. `sustain()` extends the final frame so the slide doesn't
+// vanish at t=1.
+
+def growing_circle:
+  animate(
+    fun (n :: Real.in(0, 1)):
+      circle(~size: 50 + n * 100, ~fill: "lightblue")
+  )
+
+slide(~title: "Animated Picts",
+      growing_circle.sustain())
 
 
+// ----------------------------------------------------------------
+// Slide 3: hilite — a new pict combinator
+//
+// `hilite` overlays a yellow rectangle behind `p`. Declaring `p`
+// as a dependency via `rebuildable` lets the rectangle adapt when
+// `p` is later replaced (see slide 5).
 
+fun hilite(p :: Pict) :: Pict:
+  rebuildable(
+    ~deps: [p],
+    fun (~deps: [p :: Pict]):
+      overlay(rectangle(~width: p.width, ~height: p.height, ~fill: "yellow"),
+              p)
+  )
+
+def hilite_label = text("hilite me!").scale(3)
+slide(~title: "hilite: A New Combinator",
+      morph(hilite_label, hilite(hilite_label)).sustain())
+
+
+// ----------------------------------------------------------------
+// Slide 4: wiggle — an animated combinator
+//
+// `wiggle` is defined in "wiggle.rhm". It produces an animation
+// that rocks its argument back and forth.
+
+slide(~title: "wiggle: An Animated Combinator",
+      wiggle(text("wiggling").scale(3)).sustain())
+
+
+// ----------------------------------------------------------------
+// Slide 5a: cir_sq_tri — highlight the middle shape via replace
+//
+// The paper's canonical example (§ bounding-box.scrbl): three
+// shapes side by side, with the middle one swapped for its
+// highlighted version. Because `hilite` preserves the child's
+// bounding box, the surrounding spacing stays the same.
+
+def cir = circle(~size: 30, ~fill: "lightblue")
+def sq = square(~size: 30, ~fill: "lightgreen")
+def tri = triangle(~size: 30, ~fill: "pink")
+def cir_sq_tri = beside(~sep: 5, cir, sq, tri)
+def cir_hi_sq_tri = cir_sq_tri.replace(sq, hilite(sq))
+
+slide(~title: "Highlight via replace",
+      stack(~sep: 30, cir_sq_tri, cir_hi_sq_tri).scale(3))
+
+
+// ----------------------------------------------------------------
+// Slide 5b: hilite + replace — adaptive bounds
+//
+// Because `hilite` was built with `rebuildable`, `Pict.replace`
+// re-runs `hilite`'s body with the new child, so when the
+// replacement has different bounds the yellow rectangle resizes
+// to match.
+
+def short_text = text("short").scale(3)
+def long_text = text("a much longer string").scale(3)
+def hi_short = hilite(short_text)
+def hi_long = hi_short.replace(short_text, long_text)
+
+slide(~title: "hilite adapts to replace",
+      stack(~sep: 30, hi_short, hi_long))
+
+
+// ----------------------------------------------------------------
+// Slide 6: magic_move
+//
+// `magic_move` is a *program transformation* on picts: it walks
+// the dependency tree to find children shared by `pre` and `post`
+// and tweens their positions and scales. Implementation lives in
+// "magic_move.rhm".
+
+fun one_fish(n :: Real, c :: String) :: Pict:
+  def p:
+    overlay(ellipse(~width: 50, ~height: 25, ~fill: c),
+            ~dx: 30, ~dy: 0,
+            triangle(~size: 25, ~fill: c).rotate(1/2 * math.pi))
+  p.scale(n / p.width)
+
+// Two schools, each with one leader and two followers. The picts
+// must be shared between `schools` and `leaders` so that
+// `magic_move` recognises them as the "same" fish.
+def red_leader = one_fish(40, "red")
+def red_a = one_fish(32, "pink")
+def red_b = one_fish(30, "darkred")
+def blue_leader = one_fish(44, "blue")
+def blue_a = one_fish(26, "skyblue")
+def blue_b = one_fish(18, "lightblue")
+
+def schools:
+  beside(~sep: 20,
+         beside(red_leader, stack(red_a, red_b)),
+         beside(blue_leader, stack(blue_a, blue_b)))
+
+def leaders:
+  beside(~sep: 10,
+         red_leader, blue_leader,
+         beside(red_a, red_b),
+         beside(blue_a, blue_b))
+
+slide(~title: "magic_move",
+      magic_move(schools, leaders).sustain())
+
+
+// ----------------------------------------------------------------
+// Slide 7: magic_move + hilite
+//
+// `magic_move` and `hilite` compose: we can hilite
+// the entire school of fish
+
+
+slide(~title: "magic_move + hilite",
+      magic_move(hilite(schools),
+                 hilite(leaders)).sustain())
+
+
+// ----------------------------------------------------------------
+// Slides 8-9: small-step and big-step evaluation animations
+//
+// `eval_tree` records an evaluation schedule for the body; that
+// schedule drives `small_steps` (one step at a time) and
+// `big_steps` (zoom-in-and-back-out per subexpression).
 
 def (fish_code :: Pict, fish_val :: Pict, fish_sched):
   eval_tree:
@@ -88,16 +237,11 @@ def (fish_code :: Pict, fish_val :: Pict, fish_sched):
 
 def fish_steps = sched_to_redex_list(fish_sched)
 
-
-slide(~title: "Making Fish",
-      small_steps(fish_code,
-                  fish_steps),
+slide(~title: "Small-Step Evaluation",
+      small_steps(fish_code, fish_steps),
       slide.next,
       blank(),
       @para{Now you know how to draw fish functionally!})
 
-slide(
-  big_steps(fish_code,
-            fish_sched,
-            ~as_tail: #true)
-)
+slide(~title: "Big-Step Evaluation",
+      big_steps(fish_code, fish_sched, ~as_tail: #true))

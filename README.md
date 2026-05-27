@@ -32,7 +32,7 @@ Click to continue the slideshow and press escape to exit.
 The `demo.rhm` file contains a sequence of examples taken from the paper, showing the different aspects of the pict embedded DSL. 
 
 - `dragon_curve`: First, we give an example pict program using existing pict primitives without animation.
-- `TODO`: We given an example animated pict program.
+- `animated_pict`: We give an example animated pict program using the `animate` primitive.
 - `hilite`: We define a new pict combinator which hilites text.
 - `wiggle`: We define a new pict combinator which animates a picture, making it wiggle.
 - `hilite_replaced`: We show that new `hilite` supports pict's replacement helper.
