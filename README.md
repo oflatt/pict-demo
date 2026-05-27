@@ -4,16 +4,48 @@ Name:    **Animated Pictures for Slide Presentations (Functional Pearl): From th
 
 ## Artifact Instructions
 
+This artifact gives evidence that
+the examples work as described in the paper.
+Beyond basic functionality, this artifact gives a series
+of examples supporting the claim that
+the pict library has aspects of both shallow and deeply
+embedded DSL designs. 
+We support this claim by showing that pict supports
+ defining new pict combinators (as shallow DSLs do)
+ and defining new program transformations (as deep DSLs do).
+
+### Setup
+
 Follow the QEMU instructions below to install QEMU.
 We've set up a gui for this image with xorg and xfce4, which opens on launch.
 Use the user name "artifact" and password "password" to login.
 
-
 The artifact is located at `~/pict-demo`. The `pict-demo` folder contains a `demo.rhm` Rhombus program and some helper files, including `big_steps.rhm`, `small_steps.rhm`, and `magic_move.rhm`. 
 
+### Demo
+
 To run the demo, open a terminal and run `rhombus ~/pict-demo/demo.rhm`.
-A slideshow should appear containing the dragon curve example, small step evaluation of a fish, and big step evaluation of a fish.
+A slideshow should appear containing each example in sequence.
 Click to continue the slideshow and press escape to exit. 
+
+
+The `demo.rhm` file contains a sequence of examples taken from the paper, showing the different aspects of the pict embedded DSL. 
+
+- `dragon_curve`: First, we give an example pict program using existing pict primitives without animation.
+- `TODO`: We given an example animated pict program.
+- `hilite`: We define a new pict combinator which hilites text.
+- `wiggle`: We define a new pict combinator which animates a picture, making it wiggle.
+- `hilite_replaced`: We show that new `hilite` supports pict's replacement helper.
+- `magic_move`: We show the definition of a new pict transformation, creating smooth transitions between slides. We show that it works correctly with `hilite`.
+- `small_steps`: A more complex example generates an animation for small-step execution of pict code.
+- `big_steps` Similarly, we show an example for big-step execution of pict code.
+
+Together, the new pict combinators (hilite and wiggle) and the new pict transformation (magic_move) show off the benefits of pict's hybrid embedding.
+The pict library enables new combinators and new transformations to work together.
+Under the hood, pict stores an AST annotated with user-provided functions. 
+The full source code of pict is included at TODO, with documentation at TODO.
+We invite the reviewer to view the `TODO` file in particular, which defines the Pict class. 
+
 
 
 ## QEMU Instructions
