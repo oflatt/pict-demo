@@ -243,3 +243,11 @@ slide(~title: "Small-Step Evaluation",
 
 slide(~title: "Big-Step Evaluation",
       big_steps(fish_code, fish_sched, ~as_tail: #true))
+
+
+slide(~title: "Bonus: rhombusblock",
+      stack(
+        text("The code for the previous slide:").scale(2.0),
+        rhombusblock(
+          slide(~title: "Big-Step Evaluation",
+                big_steps(fish_code, fish_sched, ~as_tail: #true))).scale(0.7)))
