@@ -88,15 +88,15 @@ The pict library enables new combinators and new transformations to work togethe
 Under the hood, pict stores an AST annotated with user-provided functions. 
 Documentation for pict is available by using `raco docs` and searching for `pict` in the top-left corner. 
 The main documentation page is called `Pict: Functional Pictures`.
-The full source code of pict is included at TODO.
-We invite the reviewer to view the `TODO` file in particular, which defines the Pict class.
+The full source code of pict is included at `~/racket/share/pkgs/rhombus-pict-lib/rhombus/pict/`.
+We invite the reviewer to view the `~/racket/share/pkgs/rhombus-pict-lib/rhombus/pict/private/static.rhm` file in particular, which defines the Pict class.
 
 
 ### Bonus: rhombusblock
 
 We give a small example using `rhombusblock` a macro provided py `pict` to render rhombus code as pictures.
 `rhombusblock` works by capturing the syntax provided and calling Rhombus' built-in rendering for Rhombus code, also used by the documentation system.
-See TODO for the macro definition.
+See `~/racket/share/pkgs/shrubbery-render-lib/shrubbery/define.rhm` for the macro definition.
 
 
 ## QEMU Instructions
