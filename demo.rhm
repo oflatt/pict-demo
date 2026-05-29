@@ -244,10 +244,33 @@ slide(~title: "Small-Step Evaluation",
 slide(~title: "Big-Step Evaluation",
       big_steps(fish_code, fish_sched, ~as_tail: #true))
 
+// ----------------------------------------------------------------
+// Slide 11: Bonus slide
+//
+// This demo shows how to use `rhombusblock`, a
+// macro which captures syntax and renders it as a pict.
+// You can escape rhombusblock with `#,` to provide a literal pict.
+
+
 
 slide(~title: "Bonus: rhombusblock",
-      stack(
-        text("The code for the previous slide:").scale(2.0),
-        rhombusblock(
-          slide(~title: "Big-Step Evaluation",
-                big_steps(fish_code, fish_sched, ~as_tail: #true))).scale(0.7)))
+      rhombusblock(
+        overlay(ellipse(~width: 50,
+                        ~height: 25,
+                        ~fill: "lightblue"),
+                ~dx: 30, ~dy: 0,
+                triangle(~size: 25,
+                         ~fill: "lightblue")
+                  .rotate(1/2 * math.pi))))
+
+
+
+slide(~title: "Bonus: rhombusblock escape",
+      rhombusblock(
+        overlay(ellipse(~width: 50,
+                        ~height: 25,
+                        ~fill: "lightblue"),
+                ~dx: 30, ~dy: 0,
+                #,(triangle(~size: 25,
+                            ~fill: "lightblue"))
+                    .rotate(1/2 * math.pi))))

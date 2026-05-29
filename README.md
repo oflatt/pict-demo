@@ -92,6 +92,12 @@ The full source code of pict is included at TODO.
 We invite the reviewer to view the `TODO` file in particular, which defines the Pict class.
 
 
+### Bonus: rhombusblock
+
+We give a small example using `rhombusblock` a macro provided py `pict` to render rhombus code as pictures.
+`rhombusblock` works by capturing the syntax provided and calling Rhombus' built-in rendering for Rhombus code, also used by the documentation system.
+See TODO for the macro definition.
+
 
 ## QEMU Instructions
 
