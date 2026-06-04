@@ -59,7 +59,7 @@ picts in the REPL in DrRacket will show the pict.
    bottom row the middle square gains a yellow border. The circle and triangle
    stay put — `replace` swaps the child while `hilite` preserves its bounding
    box.
-6. **hilite adapts to replace** — A short highlighted string above a longer
+6. **Hiliting Still Works After Replacement** — A short highlighted string above a longer
    one. The yellow box resizes to fit the new text, because `hilite` declared
    its child as a `rebuildable` dependency.
 
