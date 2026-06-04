@@ -16,7 +16,7 @@ We support this claim by showing that pict supports
 
 ### Setup
 
-Follow the QEMU instructions below to install QEMU.
+Follow the QEMU instructions below to install QEMU and start the VM.
 We've set up a gui for this image with xorg and xfce4, which opens on launch.
 Use the user name "artifact" and password "password" to login.
 
@@ -31,13 +31,16 @@ Click to continue the slideshow and press escape to exit.
 
 The `demo.rhm` file contains a sequence of examples taken from the paper.
 The slides are grouped below to walk you through claims from the paper. 
+You can view the source either with `drracket ~/pict-demo/demo.rhm &` in 
+the VM or by using your own preferred editor. Expressions that evaluate to
+picts in the REPL in DrRacket will show the pict.
 
 **Pict expresses pictures and animations.**
 
 1. **Dragon Curve** — A static fractal, tiled out of little fish, drawn from
    existing pict primitives with no animation. (The `check` forms at the top of
    `demo.rhm` also validate the dragon-curve recursion; a clean
-   `raco test demo.rhm` confirms they pass.)
+   `raco test -y demo.rhm` in the shell confirms they pass.)
 2. **Animated Picts** — A light-blue circle grows from small to large and then
    holds, built with the `animate` primitive.
 
