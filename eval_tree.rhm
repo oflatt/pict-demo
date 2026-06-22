@@ -99,13 +99,15 @@ space.enforest tree_expr:
     parsed_packer pack
     parsed_unpacker unpack
     identifier_parser (fun (id):
-                         '[$id,
-                           #void,
-                           block:
-                             let code = rhombusblock($(strip_outside(id)))
-                             values(code,
-                                    $id,
-                                    Eval([], maybe_step(code, $id), #false))]')
+                          pack(
+                           '[$id,
+                             #void,
+                             block:
+                               let code = rhombusblock($(strip_outside(id)))
+                               values(code,
+                                      $id,
+                                      Eval([], maybe_step(code, $id), #false))]'
+                         ))
 
 meta:
   // Picts for subexpressions should not have any prefix or suffix text,
